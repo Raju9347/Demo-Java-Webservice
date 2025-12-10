@@ -12,6 +12,7 @@ ENV APP_HOME=/app
 WORKDIR ${APP_HOME}
 
 # Create non-root user/group
+RUN apk add --no-cache libpng=1.6.53-r0
 RUN addgroup -S app && adduser -S app -G app
 USER app
 
