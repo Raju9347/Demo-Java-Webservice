@@ -33,10 +33,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Set up JDK 21
+      - name: Set up JDK
         uses: actions/setup-java@v4
         with:
+          distribution: 'temurin'
           java-version: '21'
+          cache: 'maven'
 
       - name: Unit tests
         run: mvn -q -B test
