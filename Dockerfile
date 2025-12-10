@@ -16,7 +16,9 @@ RUN addgroup -S app && adduser -S app -G app
 USER app
 
 # Copy artifact
-COPY --chown=app:app --from=build /src/target/java-webservice-0.1.0.jar app.jar
+# COPY --chown=app:app --from=build /src/target/java-webservice-0.1.0.jar app.jar
+COPY --chown=app:app --from=build /src/target/*.jar app.jar
+
 RUN mkdir -p ${APP_HOME}/config
 
 EXPOSE 8080
