@@ -8,12 +8,15 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 @SpringBootApplication
 public class Application {
-    private Application() {
-        // prevent instantiation
+
+    // Default constructor must be visible (public or package-private)
+    public Application() {
+        // empty constructor
     }
 
     public static void main(final String[] args) {
         SpringApplication.run(Application.class, args);
     }
 }
+
 
