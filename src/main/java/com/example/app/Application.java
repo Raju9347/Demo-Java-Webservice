@@ -3,16 +3,21 @@ package com.example.app;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-// @SpringBootApplication
-// public class Application {
-//   public static void main(String[] args) {
-//     SpringApplication.run(Application.class, args);
-//   }
-// }
-
+/**
+ * Main application entrypoint.
+ */
 @SpringBootApplication
-public class Application {
-  public static void main(String[] args) { SpringApplication.run(Application.class, args); }
+public final class Application {
+
+    private Application() {
+        // prevent instantiation
+    }
+
+    /**
+     * Starts the Spring Boot application.
+     * @param args CLI args
+     */
+    public static void main(final String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
 }
-
-

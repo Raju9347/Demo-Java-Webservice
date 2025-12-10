@@ -1,19 +1,29 @@
-FROM maven:3.9-eclipse-temurin-21 AS builder
-WORKDIR /workspace
+# ====== Build stage ======
+FROM maven:3.9-eclipse-temurin-17 AS build
+WORKDIR /src
 COPY pom.xml .
-RUN mvn -q -B -DskipTests dependency:go-offline
+RUN mvn -q -B -e -DskipTests dependency:go-offline
 COPY src ./src
-RUN mvn -q -B -DskipTests package
+RUN mvn -q -B -e package
 
-FROM eclipse-temurin:21-jre-alpine
-ENV APP_HOME=/app \
-    JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75"
-WORKDIR $APP_HOME
-RUN addgroup -g 1001 appgroup && adduser -D -u 1001 -G appgroup appuser
-COPY --from=builder /workspace/target/*.jar app.jar
-RUN mkdir -p /data && chown -R appuser:appgroup /data $APP_HOME
-USER 1001
+# ====== Runtime stage (non-root) ======
+FROM eclipse-temurin:17-jre-alpine
+ENV APP_HOME=/app
+WORKDIR ${APP_HOME}
+
+# Create non-root user/group
+RUN addgroup -S app && adduser -S app -G app
+USER app
+
+# Copy artifact
+COPY --chown=app:app --from=build /src/target/java-webservice-0.1.0.jar app.jar
+# Config directory for ConfigMap mount at runtime
+RUN mkdir -p ${APP_HOME}/config
+
 EXPOSE 8080
-HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
-  CMD wget -qO- http://localhost:8080/actuator/health || exit 1
-ENTRYPOINT ["sh","-c","java $JAVA_OPTS -jar app.jar"]
+
+# Healthcheck using actuator
+HEALTHCHECK --interval=10s --timeout=3s --retries=5 \
+  CMD wget -qO- http://localhost:8080/actuator/health | grep '"status":"UP"' || exit 1
+
+ENTRYPOINT ["java","-jar","/app/app.jar"]

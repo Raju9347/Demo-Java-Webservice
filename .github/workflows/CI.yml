@@ -47,7 +47,7 @@ jobs:
         run: mvn clean package
 
       - name: Lint (Checkstyle)
-        run: mvn -q -B checkstyle:check || (echo "Lint issues found"; exit 1)
+        run: mvn -q -B checkstyle:check
 
       - name: Docker Login and Build
         run: |
