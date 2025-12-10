@@ -82,8 +82,7 @@ jobs:
       - name: Docker_Image_push
         if: ${{ steps.Scan_with_Trivy.outcome == 'success' }}
         run: |
-         docker login ${{ env.REGISTRY_URL }} -u ${{ env.REGISTRY_USERNAME }} -p ${{ env.REGISTRY_PASSWORD }}
-         docker push ${{ env.REGISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.TAG }}
+         docker push ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.TAG }}
         
       - name: upload artifact
         uses: actions/upload-artifact@v4
