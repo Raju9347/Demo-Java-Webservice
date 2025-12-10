@@ -13,7 +13,6 @@ public class Application {
     public Application() {
         // empty constructor
     }
-    @param args CLI arguments
 
     public static void main(final String[] args) {
         SpringApplication.run(Application.class, args);

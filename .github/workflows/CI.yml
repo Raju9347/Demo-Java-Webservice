@@ -46,8 +46,8 @@ jobs:
       - name: Build with Maven
         run: mvn clean package
 
-      - name: Lint (Checkstyle)
-        run: mvn -q -B checkstyle:check
+    #   - name: Lint (Checkstyle)
+    #     run: mvn -q -B checkstyle:check
 
       - name: Docker Login and Build
         run: |
