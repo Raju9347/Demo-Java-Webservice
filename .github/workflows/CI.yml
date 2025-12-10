@@ -52,8 +52,8 @@ jobs:
       - name: Log into Docker
         uses: docker/login-action@v2
         with:
-          username: ${{ env.REGISTRY_USERNAME }}
-          password: ${{ env.REGISTRY_PASSWORD }}
+          username: chinna5555
+          password: Chinna@1999
 
       - name: Docker Login and Build
         run: |
