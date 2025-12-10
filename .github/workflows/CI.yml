@@ -10,10 +10,10 @@ env:
 #   SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 #   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 #   SONAR_USERNAME: ${{ secrets.SONAR_USERNAME }}
-  ECR_REPOSITORY: ${{ secrets.REGISTRY_URL }}
-  REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
-  REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
-  IMAGE_NAME: demo-java-app
+#   ECR_REPOSITORY: ${{ secrets.REGISTRY_URL }}
+#   REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+#   REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+  ECR_REPOSITORY: demo-java-app
   TAG: v1.0.${{ github.run_number }}   #v1.0.XXXXXX
   AWS_ACCOUNT_ID: 338034595180
 #   TWISTLOCK_CONSOLE_URL: ${{ secrets.TWISTLOCK_CONSOLE_URL }}
@@ -64,10 +64,10 @@ jobs:
 
       - name: Docker Login and Build
         run: |
-          docker build -f Dockerfile -t ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}:${{ github.event.inputs.TAG }} .
+          docker build -f Dockerfile -t ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ github.event.inputs.TAG }} .
 
       - name: Save image for scanning
-        run: docker image save ${{ env.IMAGE_NAME }}:${{ env.TAG }} -o java-app.tar
+        run: docker image save ${{ env.ECR_REPOSITORY }}:${{ env.TAG }} -o java-app.tar
 
       - name: Scan_with_Trivy
         id: Scan_with_Trivy
