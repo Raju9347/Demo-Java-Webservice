@@ -84,9 +84,9 @@ jobs:
         run: |
          docker push ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.TAG }}
         
-      - name: upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Build-Test-Artifact
-          path: /java-app.tar
+    #   - name: upload artifact
+    #     uses: actions/upload-artifact@v4
+    #     with:
+    #       name: Build-Test-Artifact
+    #       path: /java-app.tar
 

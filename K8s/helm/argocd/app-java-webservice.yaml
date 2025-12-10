@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: java-webservice
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Raju9347/Demo-Java-Webservice.git
+    targetRevision: main
+    path: k8s/helm/java-webservice
+    helm:
+      values: |
+        image:
+          repository: 338034595180.dkr.ecr.us-west-2.amazonaws.com/demo-java-app
+          tag: v1.0.29
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
