@@ -67,7 +67,7 @@ jobs:
           docker build -f Dockerfile -t ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.TAG }} .
 
       - name: Save image for scanning
-        run: docker image save ${{ env.ECR_REPOSITORY }}:${{ env.TAG }} -o java-app.tar
+        run: docker image save {{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.TAG }} -o java-app.tar
 
       - name: Scan_with_Trivy
         id: Scan_with_Trivy
