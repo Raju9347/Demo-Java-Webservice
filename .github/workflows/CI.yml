@@ -25,7 +25,7 @@ env:
 
 jobs:
   MavenDockerBuild: 
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     outputs:
      plan-artifact: Build-Test-Artifact
 
