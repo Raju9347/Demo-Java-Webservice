@@ -1,0 +1,28 @@
+# server:
+#   port: 8080
+
+# management:
+#   endpoints:
+#     web:
+#       exposure:
+#         include: health,info
+#   endpoint:
+#     health:
+#       show-details: never
+
+# app:
+#   itemsFile: /data/items.json
+#   message: "hello from application.yaml"
+#   mode: "dev"
+
+server:
+  port: 8080
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+app:
+  itemsFile: /data/items.json
+  message: "hello from application.yaml"
+  mode: "dev"
