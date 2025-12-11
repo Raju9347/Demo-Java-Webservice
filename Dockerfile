@@ -21,7 +21,7 @@ RUN addgroup -S app && adduser -S app -G app
 USER app
 
 # Copy built artifact (pick the fat JAR created by Spring Boot plugin)
-COPY --chown=app:app --from=build /src/target/java-webservice-*.jar app.jar
+COPY --chown=app:app --from=build /src/target/java-webservice-1.0.0.jar app.jar
 # Or if you use release versioning:
 # COPY --chown=app:app --from=build /src/target/java-webservice-*.jar app.jar
 
