@@ -9,16 +9,41 @@
   <version>1.0.0</version>
   <packaging>jar</packaging>
 
+  <!-- Spring Boot parent manages most versions -->
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.4.5</version>
-    <relativePath/> <!-- lookup parent from repository -->
+    <version>3.3.11</version>
+    <relativePath/>
   </parent>
 
   <properties>
     <java.version>21</java.version>
   </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- Override Tomcat to patched version -->
+      <dependency>
+        <groupId>org.apache.tomcat.embed</groupId>
+        <artifactId>tomcat-embed-core</artifactId>
+        <version>10.1.45</version>
+      </dependency>
+
+      <!-- Override Spring Framework core to patched version -->
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-core</artifactId>
+        <version>6.2.11</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-webmvc</artifactId>
+        <version>6.1.14</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <dependencies>
     <!-- Web starter -->
