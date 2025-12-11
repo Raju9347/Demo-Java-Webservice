@@ -2,7 +2,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "demo-java-app.fullname" . }}
+  name: {{ include "java-webservice.fullname" . }}
   annotations:
     kubernetes.io/ingress.class: {{ .Values.ingress.className }}
 spec:
@@ -14,7 +14,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: {{ include "demo-java-app.fullname" . }}
+                name: {{ include "java-webservice.fullname" . }}
                 port:
                   number: {{ .Values.service.port }}
 {{- end }}
