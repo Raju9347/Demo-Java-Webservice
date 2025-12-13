@@ -15,11 +15,13 @@ spec:
         - name: image.repository
           value: 338034595180.dkr.ecr.us-west-2.amazonaws.com/demo-java-app
         - name: image.tag
-          value: v1.0.60
+          value: v1.0.61
   destination:
     namespace: default
     server: https://kubernetes.default.svc
   syncPolicy:
-    automated: {}        # or leave manual if you prefer
+    automated: 
+      prune: true
+      selfHeal: true
     syncOptions:
       - CreateNamespace=true
