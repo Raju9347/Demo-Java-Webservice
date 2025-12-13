@@ -8,7 +8,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/Raju9347/Demo-Java-Webservice.git
-    targetRevision: main
+    targetRevision: Feature/Testing
     path: K8s/helm
     helm:
       parameters:
