@@ -7,22 +7,20 @@ on:
         description: 'Image tag to deploy (example: v1.0.123)'
         required: true
         default: ''
-  push:
-    branches: [ '**' ]
+
 
 env:
-  # set sensible defaults here (override via repository secrets or workflow inputs)
   AWS_REGION: us-west-2
   EKS_CLUSTER_NAME: my-cluster
   AWS_ACCOUNT_ID: 338034595180
   ECR_REPOSITORY: demo-java-app
-#   TAG: v1.0.${{ github.run_number }}
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   SESSION_TOKEN: ${{ secrets.SESSION_TOKEN }}
 
 jobs:
   deploy:
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -36,8 +34,8 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}   # optional
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Install kubectl (AWS action)
-        uses: aws-actions/eks-kubectl@v1
+      - name: Install kubectl
+        uses: actions/setup-kubectl@v4
         with:
           kubectl-version: 'latest'   # or pin a specific version, e.g. '1.27.3'
 
