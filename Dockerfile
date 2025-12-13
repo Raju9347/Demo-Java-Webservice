@@ -2,6 +2,7 @@
 FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /src
 
+
 # Copy pom.xml first to leverage caching
 COPY pom.xml .
 RUN mvn -q -B -e -DskipTests dependency:go-offline
@@ -23,7 +24,9 @@ USER app
 # Copy built artifact (pick the fat JAR created by Spring Boot plugin)
 COPY --chown=app:app --from=build /src/target/java-webservice-1.0.0.jar app.jar
 # Or if you use release versioning:
-# COPY --chown=app:app --from=build /src/target/java-webservice-*.jar app.jar
+# Copy initial JSON for items (from build context)
+# Build stage contains source at /src/src/... because we used WORKDIR /src and COPY src ./src
+COPY --chown=app:app --from=build /src/src/main/resources/data/items.json /data/items.json
 
 EXPOSE 8080
 
