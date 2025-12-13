@@ -2,11 +2,7 @@ name: CD
 
 on:
   workflow_dispatch:
-    inputs:
-      TAG:
-        description: 'Image tag to deploy (example: v1.0.123)'
-        required: true
-        default: ''
+
 
 
 env:
