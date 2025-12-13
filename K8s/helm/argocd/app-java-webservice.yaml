@@ -15,7 +15,7 @@ spec:
         - name: image.repository
           value: 338034595180.dkr.ecr.us-west-2.amazonaws.com/demo-java-app
         - name: image.tag
-          value: v1.0.61
+          value: v1.0.60
   destination:
     namespace: default
     server: https://kubernetes.default.svc
