@@ -8,8 +8,7 @@ on:
         required: true
         default: ''
   push:
-    branches:
-      - 'main'
+    branches: [ '**' ]
 
 env:
   # set sensible defaults here (override via repository secrets or workflow inputs)
