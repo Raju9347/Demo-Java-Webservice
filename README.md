@@ -163,7 +163,6 @@ This project demonstrates a complete **CI/CD and GitOps-based delivery pipeline*
 
 
 ### HPA Reached Target % 
-![When-HPA-Reach-target-Persantage-Pods-Increased](https://github.com/user-attachments/assets/4f3928da-6033-4a82-a8bc-546bfce6c199)
 
 ![When-HPA-Reach-target-Persantage-Pods-Increased](https://github.com/user-attachments/assets/65497866-ab70-470d-9ab4-7683a5a85097)
 
