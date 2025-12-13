@@ -2,6 +2,12 @@ name: CD
 
 on:
   workflow_dispatch:
+    inputs:
+      TAG:
+        description: 'Docker image tag to deploy'
+        required: true
+  push:
+    branches: [ '**' ]
 
 
 
