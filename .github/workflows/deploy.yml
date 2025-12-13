@@ -1,0 +1,73 @@
+name: deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      TAG:
+        description: 'Docker image tag to deploy'
+        required: true
+
+env:
+  AWS_REGION: us-west-2
+  EKS_CLUSTER_NAME: my-cluster
+  AWS_ACCOUNT_ID: 338034595180
+  ECR_REPOSITORY: demo-java-app
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}   # optional
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Install kubectl
+        uses: actions/setup-kubectl@v4
+        with:
+          kubectl-version: 'latest'
+
+      - name: Install Helm
+        run: |
+          curl -fsSL -o /tmp/get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+          chmod 700 /tmp/get_helm.sh
+          /tmp/get_helm.sh
+
+      - name: Configure kubeconfig for EKS
+        run: |
+          aws eks update-kubeconfig --name "${{ env.EKS_CLUSTER_NAME }}" --region ${{ env.AWS_REGION }}
+
+      - name: Determine image values
+        id: image_info
+        run: |
+          TAG_INPUT="${{ github.event.inputs.TAG }}"
+          if [ -z "$TAG_INPUT" ]; then
+            echo "ERROR: TAG must be provided when triggering this workflow"
+            exit 1
+          fi
+          IMAGE="${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}"
+          echo "tag=$TAG_INPUT" >> $GITHUB_OUTPUT
+          echo "image=$IMAGE" >> $GITHUB_OUTPUT
+
+      - name: Render Helm chart and apply
+        run: |
+          echo "Deploying image: ${{ steps.image_info.outputs.image }}:${{ steps.image_info.outputs.tag }}"
+          helm template java-webservice K8s/helm \
+            --set image.repository="${{ steps.image_info.outputs.image }}" \
+            --set image.tag="${{ steps.image_info.outputs.tag }}" \
+            | kubectl apply -f -
+
+      - name: Wait for rollout
+        run: |
+          DEPLOYMENT_NAME="java-webservice"
+          echo "Waiting for rollout of deployment: $DEPLOYMENT_NAME"
+          kubectl rollout status deploy/"$DEPLOYMENT_NAME" --timeout=120s
+
+      - name: Success
+        run: echo "Deployment finished successfully."
