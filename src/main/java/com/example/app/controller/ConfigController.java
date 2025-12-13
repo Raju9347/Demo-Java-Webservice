@@ -21,13 +21,11 @@ public class ConfigController {
     @Value("${app.mode:dev}")
     private String mode;
 
-    // Existing endpoint: returns config values
     @GetMapping
     public Map<String, String> get() {
         return Map.of("message", message, "mode", mode);
     }
 
-    // New endpoint: burns CPU for HPA testing
     @GetMapping("/stress")
     public String stress() {
         long sum = 0;
