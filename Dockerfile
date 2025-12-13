@@ -14,9 +14,9 @@ RUN mvn -q -B -e package -DskipTests
 FROM eclipse-temurin:21-jre-alpine
 ENV APP_HOME=/app
 WORKDIR ${APP_HOME}
-
-# Create non-root user/group
+##Vulnerability Remediation - Install specific version of libpng
 RUN apk add --no-cache libpng=1.6.53-r0
+# Create non-root user/group
 RUN addgroup -S app && adduser -S app -G app
 USER app
 

@@ -1,0 +1,91 @@
+name: CD
+
+on:
+  workflow_dispatch:
+    inputs:
+      TAG:
+        description: 'Image tag to deploy (example: v1.0.123)'
+        required: true
+        default: ''
+  push:
+    branches:
+      - 'main'
+
+env:
+  # set sensible defaults here (override via repository secrets or workflow inputs)
+  AWS_REGION: us-west-2
+  EKS_CLUSTER_NAME: my-cluster
+  AWS_ACCOUNT_ID: 338034595180
+  ECR_REPOSITORY: demo-java-app
+#   TAG: v1.0.${{ github.run_number }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  SESSION_TOKEN: ${{ secrets.SESSION_TOKEN }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}   # optional
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Install kubectl (AWS action)
+        uses: aws-actions/eks-kubectl@v1
+        with:
+          kubectl-version: 'latest'   # or pin a specific version, e.g. '1.27.3'
+
+      - name: Install Helm (official script)
+        run: |
+          curl -fsSL -o /tmp/get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+          chmod 700 /tmp/get_helm.sh
+          /tmp/get_helm.sh
+
+      - name: Configure kubeconfig for EKS
+        run: |
+          if [ -z "${{ env.EKS_CLUSTER_NAME }}" ]; then
+            echo "ERROR: ${{ env.EKS_CLUSTER_NAME }} is not set in repository secrets"
+            exit 1
+          fi
+          aws eks update-kubeconfig --name "${{ env.EKS_CLUSTER_NAME }}" --region ${{ env.AWS_REGION }}
+
+      - name: Determine image values
+        id: image_info
+        run: |
+          TAG_INPUT="${{ github.event.inputs.TAG }}"
+          if [ -z "$TAG_INPUT" ]; then
+            echo "ERROR: TAG must be provided when triggering this workflow (workflow_dispatch -> TAG)"
+            exit 1
+          fi
+          IMAGE="${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "image=$IMAGE" >> $GITHUB_OUTPUT
+
+      - name: Render Helm chart and kubectl apply
+        run: |
+          echo "Deploying image: ${{ steps.image_info.outputs.image }}:${{ steps.image_info.outputs.tag }}"
+          helm template java-webservice K8s/helm \
+            --set image.repository="${{ steps.image_info.outputs.image }}" \
+            --set image.tag="${{ steps.image_info.outputs.tag }}" \
+            | kubectl apply -f -
+
+      - name: Wait for rollout to finish
+        run: |
+          # nice to use the chart fullname; adapt the deployment name if you override it
+          DEPLOYMENT_NAME=$(helm template java-webservice K8s/helm --set image.repository="${{ steps.image_info.outputs.image }}" --set image.tag="${{ steps.image_info.outputs.tag }}" | grep '^kind: Deployment' -n -B1 | grep 'name:' | head -1 | awk '{print $2}')
+          if [ -z "$DEPLOYMENT_NAME" ]; then
+            # fallback to the chart fullname (replace with actual name if needed)
+            DEPLOYMENT_NAME="java-webservice"
+          fi
+          echo "Waiting for rollout of deployment: $DEPLOYMENT_NAME"
+          kubectl rollout status deploy/"$DEPLOYMENT_NAME" --timeout=120s
+
+      - name: Success message
+        run: echo "Deployment finished successfully."
