@@ -5,7 +5,7 @@ metadata:
   labels:
     app: {{ include "java-webservice.name" . }}
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   ports:
     - port: 80
       targetPort: 8080

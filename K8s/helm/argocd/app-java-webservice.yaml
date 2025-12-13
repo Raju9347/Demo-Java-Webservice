@@ -1,3 +1,4 @@
+# argo/app-java-webservice.yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -8,18 +9,17 @@ spec:
   source:
     repoURL: https://github.com/Raju9347/Demo-Java-Webservice.git
     targetRevision: main
-    path: k8s/helm/java-webservice
+    path: K8s/helm
     helm:
-      values: |
-        image:
-          repository: 338034595180.dkr.ecr.us-west-2.amazonaws.com/demo-java-app
-          tag: v1.0.29
+      parameters:
+        - name: image.repository
+          value: 338034595180.dkr.ecr.us-west-2.amazonaws.com/demo-java-app
+        - name: image.tag
+          value: v1.0.52
   destination:
-    server: https://kubernetes.default.svc
     namespace: default
+    server: https://kubernetes.default.svc
   syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
+    automated: {}        # or leave manual if you prefer
     syncOptions:
       - CreateNamespace=true
