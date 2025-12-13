@@ -6,8 +6,8 @@ on:
       TAG:
         description: 'Docker image tag to deploy'
         required: true
-  push:
-    branches: [ '**' ]
+#   push:
+#     branches: [ '**' ]
 
 
 

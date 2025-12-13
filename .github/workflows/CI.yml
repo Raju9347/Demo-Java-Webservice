@@ -27,6 +27,9 @@ env:
 jobs:
   MavenDockerBuild: 
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      workflows: write
     outputs:
      plan-artifact: Build-Test-Artifact
 
@@ -80,10 +83,21 @@ jobs:
           ignore-unfixed: true
 
       - name: Docker_Image_push
+        id: docker_push
         if: ${{ steps.Scan_with_Trivy.outcome == 'success' }}
         run: |
-         docker push ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.TAG }}
-        
+          docker push ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.TAG }}
+
+      - name: Trigger CD (dispatch deploy.yml)
+        if: ${{ steps.docker_push.outcome == 'success' }}
+        uses: peter-evans/workflow-dispatch@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          workflow: deploy.yml
+          ref: main
+          inputs: |
+            TAG: ${{ env.TAG }}        
     #   - name: upload artifact
     #     uses: actions/upload-artifact@v4
     #     with:
