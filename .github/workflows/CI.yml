@@ -95,12 +95,12 @@ jobs:
       - name: Trigger CD via REST API
         if: ${{ steps.docker_push.outcome == 'success' }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
           TAG: ${{ env.TAG }}
         run: |
           curl -X POST \
             -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+            -H "Authorization: Bearer ${PAT_TOKEN}" \
             https://api.github.com/repos/${{ github.repository }}/actions/workflows/deploy.yml/dispatches \
             -d "{\"ref\":\"Feature/Testing\",\"inputs\":{\"TAG\":\"${TAG}\"}}"       
     #   - name: upload artifact
