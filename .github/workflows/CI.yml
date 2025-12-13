@@ -6,7 +6,7 @@ on:
 
 permissions:
   contents: read
-  workflows: write
+  # workflows: write
 
 env:
 #   EKS_CLUSTER_NAME: my-cluster-name
