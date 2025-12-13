@@ -4,6 +4,10 @@ on:
   push:
     branches: [ '**' ]
 
+permissions:
+  contents: read
+  workflows: write
+
 env:
 #   EKS_CLUSTER_NAME: my-cluster-name
   AWS_REGION: us-west-2
@@ -88,16 +92,17 @@ jobs:
         run: |
           docker push ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.TAG }}
 
-      - name: Trigger CD (dispatch deploy.yml)
+      - name: Trigger CD via REST API
         if: ${{ steps.docker_push.outcome == 'success' }}
-        uses: peter-evans/workflow-dispatch@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          repository: ${{ github.repository }}
-          workflow: deploy.yml
-          ref: main
-          inputs: |
-            TAG: ${{ env.TAG }}        
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ env.TAG }}
+        run: |
+          curl -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+            https://api.github.com/repos/${{ github.repository }}/actions/workflows/deploy.yml/dispatches \
+            -d "{\"ref\":\"Feature/Testing\",\"inputs\":{\"TAG\":\"${TAG}\"}}"       
     #   - name: upload artifact
     #     uses: actions/upload-artifact@v4
     #     with:
