@@ -53,8 +53,8 @@ jobs:
       - name: Build with Maven
         run: mvn clean package
 
-    #   - name: Lint (Checkstyle)
-    #     run: mvn -q -B checkstyle:check
+      - name: Lint (Checkstyle)
+        run: mvn -q -B checkstyle:check
       - name: Configure Aws CLI
         uses: aws-actions/configure-aws-credentials@v2
         with:
