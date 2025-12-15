@@ -1,6 +1,6 @@
 image:
   repository: 338034595180.dkr.ecr.us-west-2.amazonaws.com/demo-java-app
-  tag: 'v1.0.73'
+  tag: 'v1.0.77'
   pullPolicy: IfNotPresent
 
 service:
