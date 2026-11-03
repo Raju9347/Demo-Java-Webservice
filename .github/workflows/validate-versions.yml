@@ -1,0 +1,23 @@
+name: Validate Runner Tools
+
+on:
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify Azure CLI
+        run: az version
+
+      - name: Verify kubectl
+        run: kubectl version --client
+
+      - name: Verify Helm
+        run: helm version
+
+      - name: Verify Git
+        run: git --version
