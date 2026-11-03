@@ -1,0 +1,27 @@
+name: Test Self Hosted Runner
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Display Runner Info
+        run: |
+          echo "Runner Name: $(hostname)"
+          whoami
+          pwd
+
+      - name: Verify Tools
+        run: |
+          git --version
+          curl --version
+
+      - name: Success Message
+        run: |
+          echo "GitHub Self-Hosted Runner is working successfully!"
