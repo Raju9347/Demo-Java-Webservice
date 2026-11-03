@@ -1,106 +1,106 @@
-name: CI
-on:
-  workflow_dispatch:
-  push:
-    branches: [ '**' ]
+# name: CI
+# on:
+#   workflow_dispatch:
+#   push:
+#     branches: [ '**' ]
 
-permissions:
-  contents: write
-#   workflows: write
+# permissions:
+#   contents: write
+# #   workflows: write
 
-env:
-#   EKS_CLUSTER_NAME: my-cluster-name
-  AWS_REGION: us-west-2
-#   SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-#   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-#   SONAR_USERNAME: ${{ secrets.SONAR_USERNAME }}
-#   ECR_REPOSITORY: ${{ secrets.REGISTRY_URL }}
-#   REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
-#   REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
-  ECR_REPOSITORY: demo-java-app
-  TAG: v1.0.${{ github.run_number }}   #v1.0.XXXXXX
-  AWS_ACCOUNT_ID: 338034595180
-#   TWISTLOCK_CONSOLE_URL: ${{ secrets.TWISTLOCK_CONSOLE_URL }}
-#   TWISTLOCK_USERNAME: ${{ secrets.TWISTLOCK_USERNAME }}
-#   TWISTLOCK_PASSWORD: ${{ secrets.TWISTLOCK_PASSWORD }}
-  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  SESSION_TOKEN: ${{ secrets.SESSION_TOKEN }}
+# env:
+# #   EKS_CLUSTER_NAME: my-cluster-name
+#   AWS_REGION: us-west-2
+# #   SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+# #   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+# #   SONAR_USERNAME: ${{ secrets.SONAR_USERNAME }}
+# #   ECR_REPOSITORY: ${{ secrets.REGISTRY_URL }}
+# #   REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+# #   REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+#   ECR_REPOSITORY: demo-java-app
+#   TAG: v1.0.${{ github.run_number }}   #v1.0.XXXXXX
+#   AWS_ACCOUNT_ID: 338034595180
+# #   TWISTLOCK_CONSOLE_URL: ${{ secrets.TWISTLOCK_CONSOLE_URL }}
+# #   TWISTLOCK_USERNAME: ${{ secrets.TWISTLOCK_USERNAME }}
+# #   TWISTLOCK_PASSWORD: ${{ secrets.TWISTLOCK_PASSWORD }}
+#   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#   SESSION_TOKEN: ${{ secrets.SESSION_TOKEN }}
     
 
-jobs:
-  MavenDockerBuild: 
-    runs-on: ubuntu-latest
-    # permissions:
-    #   contents: read
-    outputs:
-     plan-artifact: Build-Test-Artifact
+# jobs:
+#   MavenDockerBuild: 
+#     runs-on: ubuntu-latest
+#     # permissions:
+#     #   contents: read
+#     outputs:
+#      plan-artifact: Build-Test-Artifact
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v3
 
-      - name: Set up JDK
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-          cache: 'maven'
+#       - name: Set up JDK
+#         uses: actions/setup-java@v4
+#         with:
+#           distribution: 'temurin'
+#           java-version: '21'
+#           cache: 'maven'
 
-      - name: Unit tests
-        run: mvn -q -B test -T 1C
+#       - name: Unit tests
+#         run: mvn -q -B test -T 1C
       
-      - name: Build with Maven
-        run: mvn clean package
+#       - name: Build with Maven
+#         run: mvn clean package
 
-      # - name: Lint (Checkstyle)
-      #   run: |
-      #     mvn formatter:format
-      #     mvn -q -B checkstyle:check
+#       # - name: Lint (Checkstyle)
+#       #   run: |
+#       #     mvn formatter:format
+#       #     mvn -q -B checkstyle:check
 
-      - name: Configure Aws CLI
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
-          aws-session-token: ${{ env.SESSION_TOKEN }}
-          aws-region: ${{ env.AWS_REGION }}
+#       - name: Configure Aws CLI
+#         uses: aws-actions/configure-aws-credentials@v2
+#         with:
+#           aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+#           aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+#           aws-session-token: ${{ env.SESSION_TOKEN }}
+#           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Log into ECR
-        run: |
-          aws ecr create-repository --repository-name ${{ env.ECR_REPOSITORY }} --region ${{ env.AWS_REGION }} || true
-          aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
+#       - name: Log into ECR
+#         run: |
+#           aws ecr create-repository --repository-name ${{ env.ECR_REPOSITORY }} --region ${{ env.AWS_REGION }} || true
+#           aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
 
-      - name: Docker Build
-        run: |
-          docker build -f Dockerfile -t ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.TAG }} .
+#       - name: Docker Build
+#         run: |
+#           docker build -f Dockerfile -t ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.TAG }} .
 
-      - name: Save image for scanning
-        run: docker image save ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.TAG }} -o java-app.tar
+#       - name: Save image for scanning
+#         run: docker image save ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.TAG }} -o java-app.tar
 
-      - name: Scan_with_Trivy
-        id: Scan_with_Trivy
-        uses: aquasecurity/trivy-action@0.20.0
-        with:
-          input: java-app.tar
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
-          exit-code: '1'
-          ignore-unfixed: true
+#       - name: Scan_with_Trivy
+#         id: Scan_with_Trivy
+#         uses: aquasecurity/trivy-action@0.20.0
+#         with:
+#           input: java-app.tar
+#           vuln-type: 'os,library'
+#           severity: 'CRITICAL,HIGH'
+#           exit-code: '1'
+#           ignore-unfixed: true
 
-      - name: Docker_Image_push
-        id: docker_push
-        if: ${{ steps.Scan_with_Trivy.outcome == 'success' }}
-        run: |
-          docker push ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.TAG }}
+#       - name: Docker_Image_push
+#         id: docker_push
+#         if: ${{ steps.Scan_with_Trivy.outcome == 'success' }}
+#         run: |
+#           docker push ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.TAG }}
 
-      - name: Update Helm values.yaml with latest image tag
-        run: |
-          sed -i "s/^  tag: .*/  tag: '${{ env.TAG }}'/" K8s/helm/values.yaml
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git add K8s/helm/values.yaml
-          git commit -m "Update image tag to ${{ env.TAG }}"
-          git push
+#       - name: Update Helm values.yaml with latest image tag
+#         run: |
+#           sed -i "s/^  tag: .*/  tag: '${{ env.TAG }}'/" K8s/helm/values.yaml
+#           git config --global user.name "github-actions"
+#           git config --global user.email "github-actions@github.com"
+#           git add K8s/helm/values.yaml
+#           git commit -m "Update image tag to ${{ env.TAG }}"
+#           git push
 
 
