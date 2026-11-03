@@ -2,7 +2,8 @@ name: Validate Runner Tools
 
 on:
   workflow_dispatch:
-
+  push:
+    branches: [ '**' ]
 jobs:
   validate:
     runs-on: self-hosted
